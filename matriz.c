@@ -14,9 +14,24 @@ int clean_stdin();
 
 int main()
 {
-	int V=512;
-	float prob = 20 /(float) V;
+	int V, min;
+	char c;
+	float prob ;
+
+	printf("Ingrese cantidad de Vertices entre 3 y 512 \n");
+	do
+	{
+		printf("Ingrese una opcion valida: ");
+
+	} while (((scanf("%d%c", &V, &c)!=2 || c!='\n') && clean_stdin()) || V < 3 || V > 512);
 	int matriz[V][V];
+
+	printf("\nIngrese probabilidad de aristas (decimal entre 0 y 1)\n");
+	do
+	{
+		printf("Ingrese una opcion valida: ");
+
+	} while (((scanf("%f%c", &prob, &c)!=2 || c!='\n') && clean_stdin()) || prob < 0 || prob > 1);
 	iniciarMatriz(V, matriz);
 	llenarMatriz(V, matriz, prob);
 
@@ -31,14 +46,19 @@ int main()
 	double cpu_time_used;
 	
     start = clock();
-	floydWarshall(V, matriz);
+	min = floydWarshall(V, matriz);
 	end = clock();
 	cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-	
 
-	
-	printf("\nSe encontro matriz dist min en %lf segundos \n", cpu_time_used);
-	
+	if (min != -1) {
+		printf("\nEl ciclo minimo es de %d \n", min);
+		printf("\nSe encontro en %lf segundos \n", cpu_time_used);
+	}
+	else{
+		printf("\nNo existe ciclo \n");
+		printf("\nEl algoritmo tardo %lf segundos \n", cpu_time_used);
+	}
+
 	return 0;
 }
 
