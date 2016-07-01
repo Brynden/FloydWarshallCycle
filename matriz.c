@@ -3,21 +3,19 @@
 #include <time.h>
 
 #define INF 9999
-void floydWarshall(int V, int graph[V][V]);
+
+int floydWarshall(int V, int matriz[V][V]);
 void iniciarMatriz(int V, int matriz[V][V]);
 void mostrarMatriz(int V, int matriz[V][V]);
 void llenarMatriz(int V, int matriz[V][V], float prob);
-int cuentaAdyacente(int vertice[], int V);
-int verticeAdyacente(int V, int vertices[]);
 int clean_stdin();
 
 
 
 int main()
 {
-	int V=128;
-	char c;
-	float prob=0.2;
+	int V=512;
+	float prob = 20 /(float) V;
 	int matriz[V][V];
 	iniciarMatriz(V, matriz);
 	llenarMatriz(V, matriz, prob);
@@ -78,37 +76,33 @@ void mostrarMatriz(int V, int matriz[V][V])
 	}
 }
 
-void floydWarshall(int V, int graph[V][V])
-{
-	/* dist[][] will be the output matrix that will finally have the shortest
-      distances between every pair of vertices */
-	int dist[V][V], temp[V], actual, i, j, k, min = INF, vertice1, vertice2, vertice3;
+/* adaptacion de algoritmo de Floyd-Warshall
+ * encuentra ciclo minimo iterando para cada vertice
+ * el algoritmo clasico y luego busca el ciclo minimo
+ * para cada par de vertices conectados a este
+*/
+int floydWarshall(int V, int matriz[V][V]) {
 
-	/* Initialize the solution matrix same as input graph matrix. Or
-       we can say the initial values of shortest distances are based
-       on shortest paths considering no intermediate vertex. */
-
-
+	int dist[V][V], actual, i, j, k, min = INF;
+	// actual representa el vertice para el cual se busca el ciclo minimo
 	for (actual = 0; actual < V; ++actual) {
+
+		// Se inicia la matriz de distancias
 		for (i = 0; i < V; ++i) {
 			for (j = 0; j < V; ++j) {
-				if (graph[i][j] == 1 && i != actual && j != actual)
-					dist[i][j] = graph[i][j];
+				if (matriz[i][j] == 1 && i != actual && j != actual)
+					dist[i][j] = matriz[i][j];
 				else
 					dist[i][j] = INF;
 			}
 		}
 
+		// Algoritmo de Floyd-Warshall ignorando el vertice actual
 		for (k = 0; k < V; ++k) {
-			// Pick all vertices as source one by one
 			if (k != actual) {
 				for (i = 0; i < V; ++i) {
-					// Pick all vertices as destination for the
-					// above picked source
 					if (i != actual) {
 						for (j = 0; j < V; ++j) {
-							// If vertex k is on the shortest path from
-							// i to j, then update the value of dist[i][j]
 							if (j != actual) {
 								if (dist[i][k] + dist[k][j] < dist[i][j])
 									dist[i][j] = dist[i][k] + dist[k][j];
@@ -118,26 +112,26 @@ void floydWarshall(int V, int graph[V][V])
 				}
 			}
 		}
+
+		// Se busca la distancia minima entre dos vertices conectados al vertice actual
 		for (i = 0; i < V; ++i) {
-			if (graph[actual][i] == 1) {
+			if (matriz[actual][i] == 1) {
 				for (j = i + 1; j < V; ++j) {
-					if (graph[actual][j] == 1) {
+					if (matriz[actual][j] == 1) {
 						if (dist[i][j] < min) {
 							min = dist[i][j];
-							vertice1 = actual;
-							vertice2 = i;
-							vertice3 = j;
 						}
 					}
 				}
 			}
 		}
 	}
+	// La distancia minima encontrada mas 2 representando la conexion de ambos vertices con el vertice central
+	// -1 en caso de que no exista ciclo
 	if (min == INF)
-		printf("no hay ciclo\n");
+		return -1;
 	else
-		printf("distancia minima = %d, conectado, %d, %d, %d \n", min+2, vertice1, vertice2, vertice3);
-	// Print the shortest distance matrix
+		return min+2;
 }
 
 /*
@@ -162,33 +156,6 @@ void llenarMatriz(int V, int matriz[V][V], float prob)
 			}
 		}
 }
-
-
-/*
- * Cuenta la cantidad de vertices adyacentes a un vertice determinado
- */
-int cuentaAdyacente(int vertice[], int V)
-{
-	int i, vecino=0;
-	for (i = 0; i < V; i++)
-		if (vertice[i] == 1)
-			vecino++;
-	return vecino;
-}
-
-
-/*
- * Devuelve el primer vertice adyacente a un vertice determinado
- */
-int verticeAdyacente(int V, int vertices[])
-{
-	int i;
-	for (i = 0; i < V; i++)
-		if (vertices[i] == 1)
-			return i;
-	return -1;
-}
-
 
 
 // verificar ingreso correcto de datos
